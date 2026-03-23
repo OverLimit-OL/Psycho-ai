@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>عن المشروع | PsychoAI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+    integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+    crossorigin="anonymous"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              950: "#020617",
+              900: "#0f172a",
+              800: "#1e293b",
+              700: "#334155",
+            },
+            brand: { 500: "#3b82f6", 600: "#2563eb" },
+          },
+          fontFamily: { cairo: ["Cairo", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: "Cairo", sans-serif;
+      scroll-behavior: smooth;
+      background-color: #020617;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.6);
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -5px rgba(59, 130, 246, 0.15);
+    }
+
+    .hero-glow {
+      background: radial-gradient(circle at 50% 50%,
+          rgba(59, 130, 246, 0.15) 0%,
+          rgba(147, 51, 234, 0.1) 40%,
+          transparent 70%);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-gradient-brand {
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 20s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      50% {
+        transform: translate(20px, -20px);
+      }
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .delay-100 {
+      animation-delay: 100ms;
+    }
+
+    .delay-200 {
+      animation-delay: 200ms;
+    }
+
+    .delay-300 {
+      animation-delay: 300ms;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal.delay-100 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal.delay-200 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal.delay-300 {
+      transition-delay: 0.3s;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 5px;
+      border: 2px solid #020617;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+
+<body class="bg-dark-950 text-gray-200 overflow-x-hidden">
+  <nav class="fixed w-full z-50 bg-dark-900/80 backdrop-blur-md border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-blue-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
+            <i class="fas fa-brain text-white"></i>
+          </div>
+          <span class="text-2xl font-bold tracking-wide text-white">Psycho<span class="text-brand-500">AI</span></span>
+        </div>
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-baseline space-x-4 space-x-reverse">
+            <a href="#about"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">عن المشروع</a>
+            <a href="#features"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">المميزات</a>
+            <a href="#tech"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition">التقنيات</a>
+            <a href="/login"
+              class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-brand-500/20 mr-4">
+              دخول التطبيق <i class="fas fa-arrow-left mr-2"></i>
+            </a>
+          </div>
+        </div>
+        <div class="-mr-2 flex md:hidden">
+          <button id="mobile-menu-btn" class="text-gray-400 hover:text-white p-2 transition-colors">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+      class="hidden md:hidden bg-dark-900/95 backdrop-blur-xl border-b border-white/5 absolute w-full left-0 top-20 border-t border-white/5 shadow-2xl">
+      <div class="px-4 pt-4 pb-6 space-y-2">
+        <a href="#about"
+          class="block text-gray-300 hover:text-brand-400 hover:bg-white/5 px-4 py-3 rounded-xl text-base font-medium transition flex items-center justify-between group">
+          <span>عن المشروع</span>
+          <i
+            class="fas fa-chevron-left text-xs opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+        </a>
+        <a href="#features"
+          class="block text-gray-300 hover:text-brand-400 hover:bg-white/5 px-4 py-3 rounded-xl text-base font-medium transition flex items-center justify-between group">
+          <span>المميزات</span>
+          <i
+            class="fas fa-chevron-left text-xs opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+        </a>
+        <a href="#tech"
+          class="block text-gray-300 hover:text-brand-400 hover:bg-white/5 px-4 py-3 rounded-xl text-base font-medium transition flex items-center justify-between group">
+          <span>التقنيات</span>
+          <i
+            class="fas fa-chevron-left text-xs opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0"></i>
+        </a>
+        <div class="pt-4 mt-2 border-t border-white/5">
+          <a href="/login"
+            class="block bg-brand-600 hover:bg-brand-500 text-white px-4 py-3.5 rounded-xl text-base font-bold transition shadow-lg shadow-brand-500/20 text-center flex items-center justify-center gap-2">
+            <span>دخول التطبيق</span>
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+    <div class="absolute inset-0 hero-glow pointer-events-none"></div>
+    <div class="floating-orb bg-brand-500 w-96 h-96 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="floating-orb bg-purple-500 w-96 h-96 bottom-0 right-0 translate-x-1/2 translate-y-1/2 delay-1000"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div
+        class="fade-in-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-bold mb-8 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+        <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+        مستقبل الصحة النفسية الرقمية
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-8 leading-tight tracking-tight fade-in-up delay-100">
+        <span class="text-gradient-brand">رفيقك الذكي للصحة النفسية</span>
+        <br />
+        <br />
+        <span class="text-gradient">مدعوم بالذكاء الاصطناعي</span>
+      </h1>
+
+      <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-400 leading-relaxed fade-in-up delay-200">
+        PsychoAI هو نظام متكامل يهدف لتقديم الدعم النفسي الأولي، تتبع الحالة
+        المزاجية، وتحليل السلوك باستخدام أحدث تقنيات الذكاء الاصطناعي، في بيئة
+        آمنة وخصوصية تامة.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4 fade-in-up delay-300">
+        <a href="/login"
+          class="group px-8 py-4 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-2xl font-bold text-lg shadow-lg shadow-brand-500/25 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+          ابدأ رحلتك الآن
+          <i class="fas fa-rocket group-hover:translate-x-1 transition-transform"></i>
+        </a>
+        <a href="#features"
+          class="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all hover:scale-105 flex items-center justify-center gap-2">
+          تعرف المزيد
+          <i class="fas fa-arrow-down animate-bounce"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <section id="about" class="py-20 bg-dark-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-white mb-6 reveal">
+            لماذا PsychoAI؟
+          </h2>
+          <p class="text-gray-400 text-lg leading-relaxed mb-6 reveal delay-100">
+            في عالمنا المتسارع، يواجه الكثيرون تحديات نفسية يومية دون وجود وقت
+            أو إمكانية للوصول إلى متخصصين فوراً. جاءت فكرة **PsychoAI** لسد
+            هذه الفجوة.
+          </p>
+          <ul class="space-y-4">
+            <li class="flex items-start gap-4 reveal delay-200">
+              <div
+                class="w-10 h-10 rounded-lg bg-green-500/10 text-green-400 flex items-center justify-center shrink-0 border border-green-500/20">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div>
+                <h4 class="text-white font-bold text-lg">خصوصية تامة</h4>
+                <p class="text-gray-500 text-sm">
+                  مساحة آمنة ومشفرة للحديث بحرية دون القلق من تسريب البيانات.
+                </p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4 reveal delay-300">
+              <div
+                class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/20">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div>
+                <h4 class="text-white font-bold text-lg">دعم 24/7</h4>
+                <p class="text-gray-500 text-sm">
+                  رفيق ذكي متاح في أي وقت للاستماع وتقديم المشورة الأولية.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="relative">
+          <div class="absolute top-0 right-0 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl"></div>
+          <div class="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+          <div class="grid grid-cols-2 gap-4 relative z-10">
+            <div class="glass-card p-6 rounded-2xl text-center transform translate-y-8 reveal delay-100">
+              <i class="fas fa-users text-4xl text-brand-500 mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">500+</h3>
+              <p class="text-gray-500">جلسة محادثة</p>
+            </div>
+            <div class="glass-card p-6 rounded-2xl text-center reveal delay-200">
+              <i class="fas fa-chart-line text-4xl text-green-400 mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">85%</h3>
+              <p class="text-gray-500">تحسن في المزاج</p>
+            </div>
+            <div class="glass-card p-6 rounded-2xl text-center transform translate-y-8 reveal delay-300">
+              <i class="fas fa-star text-4xl text-yellow-400 mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">4.9</h3>
+              <p class="text-gray-500">تقييم المستخدمين</p>
+            </div>
+            <div class="glass-card p-6 rounded-2xl text-center reveal delay-100">
+              <i class="fas fa-lock text-4xl text-red-400 mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">100%</h3>
+              <p class="text-gray-500">حماية البيانات</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="py-20 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold text-white mb-4 reveal">
+          مميزات النظام
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto reveal delay-100">
+          أدوات متكاملة مصممة خصيصاً لتحسين جودة حياتك النفسية ومساعدتك على
+          فهم ذاتك.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-card p-8 rounded-2xl text-center group reveal delay-100">
+          <div
+            class="w-16 h-16 mx-auto bg-brand-500/10 rounded-full flex items-center justify-center text-brand-500 text-2xl mb-6 group-hover:scale-110 transition duration-300 border border-brand-500/20">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">محادثة ذكية</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            روبوت محادثة متطور يفهم المشاعر ويقدم ردوداً متعاطفة وتمارين تنفس
+            واسترخاء فورية.
+          </p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl text-center group reveal delay-200">
+          <div
+            class="w-16 h-16 mx-auto bg-purple-500/10 rounded-full flex items-center justify-center text-purple-500 text-2xl mb-6 group-hover:scale-110 transition duration-300 border border-purple-500/20">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">لوحة تحكم تحليلية</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            تتبع حالتك المزاجية يومياً وشهرياً عبر رسوم بيانية تفاعلية تساعدك
+            على فهم أنماط مشاعرك.
+          </p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl text-center group reveal delay-300">
+          <div
+            class="w-16 h-16 mx-auto bg-yellow-500/10 rounded-full flex items-center justify-center text-yellow-500 text-2xl mb-6 group-hover:scale-110 transition duration-300 border border-yellow-500/20">
+            <i class="fas fa-history"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">سجل الجلسات</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            أرشيف كامل لجميع جلساتك السابقة مع إمكانية البحث والفلترة ومراجعة
+            التوصيات.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tech" class="py-20 bg-dark-900/50 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl font-bold text-white mb-10 reveal">
+        التقنيات المستخدمة
+      </h2>
+      <div class="flex flex-wrap justify-center gap-12 opacity-80">
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-100">
+          <i class="fab fa-python text-5xl text-blue-400 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-blue-400 transition-colors">Python</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-100">
+          <i class="fas fa-flask text-5xl text-gray-200 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-white transition-colors">Flask</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-200">
+          <i class="fas fa-brain text-5xl text-brand-500 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-brand-500 transition-colors">Google
+            Gemini</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-200">
+          <i class="fas fa-database text-5xl text-blue-300 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-blue-300 transition-colors">SQLite</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-300">
+          <i class="fab fa-html5 text-5xl text-orange-500 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-orange-500 transition-colors">HTML5</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-300">
+          <i class="fab fa-css3-alt text-5xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+          <span class="text-base font-bold text-gray-400 group-hover:text-blue-500 transition-colors">Tailwind
+            CSS</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-3 group hover:opacity-100 transition duration-300 reveal delay-300">
+          <i class="fab fa-js text-5xl text-yellow-400 group-hover:scale-110 transition-transform"></i>
+          <span
+            class="text-base font-bold text-gray-400 group-hover:text-yellow-400 transition-colors">JavaScript</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-black py-12 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="col-span-1 md:col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-brain text-brand-500 text-2xl"></i>
+            <span class="text-2xl font-bold text-white">PsychoAI</span>
+          </div>
+          <p class="text-gray-500 text-sm max-w-sm">
+            مشروع يهدف إلى تعزيز الصحة النفسية باستخدام التكنولوجيا. نحن نؤمن
+            بأن الجميع يستحق الوصول إلى الدعم النفسي بسهولة وخصوصية.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white font-bold mb-4">روابط سريعة</h4>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li>
+              <a href="#" class="hover:text-brand-500 transition">الرئيسية</a>
+            </li>
+            <li>
+              <a href="/dashboard" class="hover:text-brand-500 transition">لوحة التحكم</a>
+            </li>
+            <li>
+              <a href="#about" class="hover:text-brand-500 transition">عن المشروع</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold mb-4">تواصل معنا</h4>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li><i class="fas fa-envelope mr-2"></i> contact@psychoai.com</li>
+            <li><i class="fab fa-twitter mr-2"></i> @PsychoAI</li>
+            <li><i class="fab fa-github mr-2"></i> Github Repo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/10 pt-8 text-center text-sm text-gray-600">
+        <p>&copy; 2023 PsychoAI Project. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </footer>
+  <script>
+    function reveal() {
+      var reveals = document.querySelectorAll(".reveal");
+      for (var i = 0; i < reveals.length; i++) {
+        var windowHeight = window.innerHeight;
+        var elementTop = reveals[i].getBoundingClientRect().top;
+        var elementVisible = 100;
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add("active");
+        }
+      }
+    }
+    window.addEventListener("scroll", reveal);
+
+    // Mobile Menu Toggle
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        const icon = mobileBtn.querySelector('i');
+        if (mobileMenu.classList.contains('hidden')) {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        } else {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        }
+      });
+
+      // Close menu when clicking links
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          const icon = mobileBtn.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>

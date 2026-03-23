@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <title>PsychoAI | التقييم السريري</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              dark: {
+                950: "#020617",
+                900: "#0f172a",
+                800: "#1e293b",
+                700: "#334155",
+              },
+              brand: { 500: "#3b82f6", 600: "#2563eb" },
+              accent: { 400: "#38bdf8", 500: "#0ea5e9", 600: "#0284c7" },
+              psycho: { low: "#10b981", mid: "#f59e0b", high: "#ef4444" },
+            },
+            fontFamily: { cairo: ["Cairo", "sans-serif"] },
+            animation: {
+              float: "float 6s ease-in-out infinite",
+            },
+            keyframes: {
+              float: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-10px)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Cairo", sans-serif;
+        background-color: #020617;
+        background-image: radial-gradient(
+            at 0% 0%,
+            rgba(56, 189, 248, 0.15) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 100% 0%,
+            rgba(168, 85, 247, 0.15) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 100% 100%,
+            rgba(16, 185, 129, 0.1) 0px,
+            transparent 50%
+          );
+        background-attachment: fixed;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      .glass-panel {
+        background: rgba(17, 24, 39, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+        margin: 15px 0;
+      }
+
+      input[type="range"]:focus {
+        outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 12px;
+        cursor: pointer;
+        background: #1e293b;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #38bdf8;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -7px;
+
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+        border: 3px solid #0f172a;
+        transition: transform 0.1s;
+      }
+
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        background: #e0f2fe;
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.9);
+      }
+
+      .custom-checkbox:checked {
+        background-color: #0ea5e9;
+        border-color: #0ea5e9;
+      }
+
+      .slide-up {
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      @keyframes slideUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-dark-950 text-gray-200 h-screen flex overflow-hidden selection:bg-accent-500 selection:text-white relative"
+  >
+    <div
+      id="mobile-overlay"
+      onclick="toggleSidebar()"
+      class="fixed inset-0 bg-black/80 z-40 hidden backdrop-blur-sm transition-opacity md:hidden"
+    ></div>
+
+    <div
+      id="medicalModal"
+      class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    >
+      <div
+        class="glass-panel w-full max-w-lg rounded-3xl p-8 relative scale-95 transition-transform duration-300"
+        id="modalContent"
+      >
+        <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+          <i class="fas fa-notes-medical text-accent-400"></i> تقييم الحالة
+          الجسدية
+        </h2>
+        <button
+          onclick="closeModal()"
+          class="absolute top-6 left-6 text-gray-400 hover:text-white"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+        <p class="text-gray-400 text-sm mb-6">
+          للحصول على تحليل دقيق، نحتاج لمعرفة حالتك الجسدية اليوم.
+        </p>
+
+        <div class="space-y-6">
+          <div>
+            <label
+              class="flex justify-between text-sm font-bold text-gray-300 mb-2"
+            >
+              <span
+                ><i class="fas fa-bed text-accent-400 ml-2"></i> ساعات
+                النوم</span
+              >
+              <span id="modalSleepVal" class="text-accent-400 font-mono"
+                >7 ساعات</span
+              >
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="12"
+              value="7"
+              id="modalSleepRange"
+              oninput="document.getElementById('modalSleepVal').innerText = this.value + ' ساعات'"
+              class="w-full"
+            />
+          </div>
+
+          <div>
+            <label
+              class="flex justify-between text-sm font-bold text-gray-300 mb-2"
+            >
+              <span
+                ><i class="fas fa-battery-half text-green-400 ml-2"></i> مستوى
+                الطاقة</span
+              >
+              <span id="energyVal" class="text-green-400">متوسط</span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="3"
+              value="2"
+              id="energyRange"
+              oninput="updateEnergyLabel(this.value)"
+              class="w-full"
+            />
+            <div
+              class="flex justify-between text-[10px] text-gray-500 mt-1 px-1"
+            >
+              <span>منخفض</span><span>متوسط</span><span>عالي</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-300 mb-3 block"
+              ><i class="fas fa-utensils text-yellow-400 ml-2"></i> الشهية
+              اليوم</label
+            >
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                onclick="selectAppetite(this, 'Low')"
+                class="appetite-btn p-3 rounded-xl border border-white/10 text-xs hover:bg-white/5 transition"
+              >
+                منعدمة
+              </button>
+              <button
+                onclick="selectAppetite(this, 'Normal')"
+                class="appetite-btn p-3 rounded-xl border border-accent-500 bg-accent-500/20 text-accent-400 text-xs transition"
+              >
+                طبيعية
+              </button>
+              <button
+                onclick="selectAppetite(this, 'High')"
+                class="appetite-btn p-3 rounded-xl border border-white/10 text-xs hover:bg-white/5 transition"
+              >
+                مفرطة
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold text-gray-300 mb-3 block"
+              ><i class="fas fa-heart-broken text-red-400 ml-2"></i> أعراض جسدية
+              (اختياري)</label
+            >
+            <div class="flex flex-wrap gap-2">
+              <label class="cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  value="headache"
+                  class="peer sr-only symptom-check"
+                />
+                <span
+                  class="px-3 py-1.5 rounded-lg border border-white/10 bg-dark-900 text-gray-400 text-xs peer-checked:bg-red-500/20 peer-checked:text-red-400 peer-checked:border-red-500/50 transition hover:border-white/30"
+                  >صداع</span
+                >
+              </label>
+              <label class="cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  value="chest_pain"
+                  class="peer sr-only symptom-check"
+                />
+                <span
+                  class="px-3 py-1.5 rounded-lg border border-white/10 bg-dark-900 text-gray-400 text-xs peer-checked:bg-red-500/20 peer-checked:text-red-400 peer-checked:border-red-500/50 transition hover:border-white/30"
+                  >ألم بالصدر</span
+                >
+              </label>
+              <label class="cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  value="fatigue"
+                  class="peer sr-only symptom-check"
+                />
+                <span
+                  class="px-3 py-1.5 rounded-lg border border-white/10 bg-dark-900 text-gray-400 text-xs peer-checked:bg-red-500/20 peer-checked:text-red-400 peer-checked:border-red-500/50 transition hover:border-white/30"
+                  >إرهاق شديد</span
+                >
+              </label>
+            </div>
+          </div>
+
+          <button
+            onclick="submitFinalAnalysis()"
+            class="w-full bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 text-white py-3 rounded-xl font-bold shadow-lg shadow-accent-500/20 mt-4 flex items-center justify-center gap-2 transform active:scale-95 transition"
+          >
+            <span>تأكيد وتحليل</span> <i class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside
+      id="sidebar"
+      class="fixed top-0 right-0 h-full w-64 bg-dark-900 border-l border-white/5 p-4 z-50 transform translate-x-full transition-transform duration-300 md:translate-x-0 md:relative md:flex md:flex-col shadow-2xl md:shadow-none"
+    >
+      <button
+        onclick="toggleSidebar()"
+        class="absolute top-4 left-4 text-gray-400 hover:text-white md:hidden"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-8 px-2 mt-2 md:mt-0">
+        <div
+          class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/20"
+        >
+          <i class="fas fa-brain text-white text-sm"></i>
+        </div>
+        <h1 class="text-xl font-bold tracking-wide text-white">
+          Psycho<span class="text-brand-500">AI</span>
+        </h1>
+      </div>
+
+      <nav class="space-y-2">
+        <a
+          href="/n/chat"
+          class="flex items-center gap-3 bg-brand-600/10 text-brand-500 py-3 px-4 rounded-xl border border-brand-500/20"
+        >
+          <i class="fas fa-comments w-5 text-center"></i>
+          <span class="font-semibold text-sm">المحادثة</span>
+        </a>
+        <a
+          href="/history"
+          class="flex items-center gap-3 hover:bg-white/5 text-gray-400 py-3 px-4 rounded-xl transition"
+        >
+          <i class="fas fa-history w-5 text-center"></i>
+          <span class="font-semibold text-sm">السجل</span>
+        </a>
+        <a
+          href="/settings"
+          class="flex items-center gap-3 hover:bg-white/5 text-gray-400 py-3 px-4 rounded-xl transition"
+        >
+          <i class="fas fa-cog w-5 text-center"></i>
+          <span class="font-semibold text-sm">الإعدادات</span>
+        </a>
+      </nav>
+
+      <div class="mt-auto pt-4 border-t border-white/5 relative">
+        <button
+          onclick="toggleProfileMenu()"
+          class="w-full flex items-center gap-3 px-2 opacity-70 hover:opacity-100 transition-opacity text-right bg-transparent border-0 p-0"
+        >
+          <div
+            class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden shrink-0"
+          >
+            <img
+              src="https://ui-avatars.com/api/?name=User&background=random"
+              alt="User"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="text-xs flex-1">
+            <p class="text-white font-bold">{{name}}</p>
+            <p class="text-gray-500">باقة عادية</p>
+          </div>
+          <i class="fas fa-chevron-up text-xs text-gray-500"></i>
+        </button>
+
+        <div
+          id="profileMenu"
+          class="absolute bottom-full right-0 w-full mb-2 bg-dark-800 border border-white/10 rounded-xl shadow-xl overflow-hidden hidden z-50"
+        >
+          <a
+            href="/logout"
+            class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 transition text-sm font-bold"
+          >
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+      <div class="md:hidden p-4 absolute top-0 right-0 z-30">
+        <button
+          onclick="toggleSidebar()"
+          class="text-white bg-white/10 p-2 rounded-lg hover:bg-white/20 transition backdrop-blur-md"
+        >
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto z-10 p-4 md:p-8 lg:p-12 scroll-smooth">
+        <div class="max-w-5xl mx-auto space-y-12">
+          <header
+            class="text-center space-y-2 mb-8 slide-up"
+            style="animation-delay: 0.1s"
+          >
+            <h1
+              class="text-3xl md:text-5xl font-black text-white leading-tight"
+            >
+              كيف تشعر
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-l from-accent-400 to-purple-400"
+                >اليوم؟</span
+              >
+            </h1>
+          </header>
+
+          <div
+            class="glass-panel rounded-3xl p-1 shadow-2xl slide-up hover:shadow-[0_0_40px_rgba(56,189,248,0.1)] transition-shadow duration-500"
+            style="animation-delay: 0.2s"
+          >
+            <div
+              class="bg-dark-900/80 rounded-[22px] p-6 md:p-8 relative overflow-hidden group"
+            >
+              <div class="relative">
+                <textarea
+                  id="dailyInput"
+                  rows="5"
+                  class="w-full bg-transparent text-lg text-white placeholder-gray-600 focus:outline-none resize-none leading-relaxed pl-10"
+                  placeholder="اكتب كل ما يجول في خاطرك هنا..."
+                ></textarea>
+                <button
+                  onclick="toggleVoiceRecording()"
+                  id="micBtn"
+                  class="absolute left-0 bottom-2 text-gray-500 hover:text-accent-400 transition-colors p-2 rounded-full hover:bg-white/5"
+                >
+                  <i class="fas fa-microphone text-xl"></i>
+                </button>
+              </div>
+              <div class="mt-6 flex justify-between items-end">
+                <div
+                  class="flex items-center gap-4 text-xs font-mono text-gray-500"
+                >
+                  <span class="flex items-center gap-1.5">
+                    <div
+                      class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"
+                    ></div>
+                    مشفر E2E
+                  </span>
+                </div>
+                <button
+                  onclick="openMedicalModal()"
+                  id="analyzeBtn"
+                  class="bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-accent-500/20 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
+                >
+                  <span>تحليل</span> <i class="fas fa-microchip"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="loading"
+            class="hidden flex-col items-center justify-center py-20"
+          >
+            <div
+              class="w-16 h-16 border-4 border-accent-500 border-t-transparent rounded-full animate-spin"
+            ></div>
+            <p class="mt-4 text-accent-400 animate-pulse">
+              جاري تحليل الأعراض والنص...
+            </p>
+          </div>
+
+          <div id="resultsArea" class="hidden space-y-8 pb-10">
+            <div id="doctorAlert" class="hidden slide-up">
+              <div
+                class="bg-red-500/10 border border-red-500/30 p-4 rounded-2xl flex items-start gap-4"
+              >
+                <div class="p-3 bg-red-500/20 rounded-xl text-red-400">
+                  <i class="fas fa-user-md text-2xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-white font-bold text-lg mb-1">
+                    توصية طبية عاجلة
+                  </h3>
+                  <p
+                    id="doctorReason"
+                    class="text-gray-300 text-sm leading-relaxed"
+                  ></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div
+                class="glass-panel p-6 rounded-2xl relative overflow-hidden group"
+              >
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                  <i class="fas fa-shield-alt text-6xl text-white"></i>
+                </div>
+                <h3 class="text-gray-400 text-sm font-bold mb-2">
+                  مستوى الخطورة
+                </h3>
+                <div class="flex items-center justify-between">
+                  <span id="riskText" class="text-3xl font-black text-white"
+                    >--</span
+                  >
+                </div>
+                <div
+                  class="w-full h-1.5 bg-gray-700 rounded-full mt-4 overflow-hidden"
+                >
+                  <div
+                    id="riskBar"
+                    class="h-full w-0 bg-green-500 transition-all duration-1000 ease-out"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                  <i class="fas fa-heartbeat text-6xl text-white"></i>
+                </div>
+                <h3 class="text-gray-400 text-sm font-bold mb-2">
+                  الحالة المسيطرة
+                </h3>
+                <div class="text-3xl font-black text-white" id="dominantState">
+                  --
+                </div>
+              </div>
+
+              <div
+                class="glass-panel p-4 rounded-2xl flex items-center justify-center relative"
+              >
+                <div
+                  class="w-full h-full relative flex items-center justify-center"
+                  style="min-height: 180px"
+                >
+                  <canvas id="psychChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div class="lg:col-span-2 space-y-6">
+                <div
+                  class="glass-panel p-8 rounded-3xl border-r-4 border-r-accent-500 relative min-w-0 mb-6"
+                >
+                  <div
+                    class="absolute -left-4 top-8 bg-dark-900 border border-white/10 p-2 rounded-lg transform -rotate-12 shadow-xl z-10"
+                  >
+                    <i class="fas fa-lightbulb text-yellow-400 text-xl"></i>
+                  </div>
+                  <h3 class="text-xl font-bold text-white mb-4">
+                    التحليل الشامل
+                  </h3>
+                  <p
+                    id="adviceText"
+                    dir="auto"
+                    class="text-gray-300 leading-9 text-lg font-light w-full break-words whitespace-pre-wrap tracking-wide mb-8"
+                  >
+                    جاري التحليل...
+                  </p>
+                  <div class="border-t border-white/10 pt-6">
+                    <h4
+                      class="text-accent-400 font-bold text-sm mb-4 flex items-center gap-2"
+                    >
+                      <i class="fas fa-check-circle"></i> خطوات عملية مقترحة:
+                    </h4>
+                    <div id="tasksContainer" class="space-y-3"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lg:col-span-1">
+                <div class="glass-panel p-6 rounded-2xl h-full flex flex-col">
+                  <div class="mb-6">
+                    <h3
+                      class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2"
+                    >
+                      <i class="fas fa-crosshairs text-red-400"></i> الكلمات
+                      المؤثرة
+                    </h3>
+                    <div
+                      id="triggersContainer"
+                      class="flex flex-wrap gap-2"
+                    ></div>
+                  </div>
+
+                  <div class="mt-auto border-t border-white/10 pt-6">
+                    <h3
+                      class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2"
+                    >
+                      <i class="fas fa-fire-alt text-orange-400"></i> شدة
+                      المشاعر
+                    </h3>
+                    <div
+                      class="flex items-center justify-between text-xs text-gray-500 mb-2"
+                    >
+                      <span>هادئ</span>
+                      <span>منفعل</span>
+                    </div>
+                    <div
+                      class="h-2 w-full bg-dark-900 rounded-full overflow-hidden"
+                    >
+                      <div
+                        id="emotionIntensityBar"
+                        class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 w-0 transition-all duration-1000"
+                      ></div>
+                    </div>
+                    <p
+                      id="emotionText"
+                      class="text-center text-xs text-gray-400 mt-2 font-bold"
+                    >
+                      --
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    {% if error %}
+    <div
+      id="errorPopup"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300 px-4"
+    >
+      <div
+        class="glass-panel w-full max-w-md rounded-3xl p-8 relative scale-100 transition-all duration-300 border border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.15)] flex flex-col items-center text-center"
+      >
+        <button
+          onclick="closeErrorPopup()"
+          class="absolute top-5 right-5 text-gray-500 hover:text-white transition-colors p-2"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <div
+          class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500/20 to-red-900/20 flex items-center justify-center border border-red-500/30 mb-6 shadow-inner relative"
+        >
+          <div
+            class="absolute inset-0 rounded-full bg-red-500/10 animate-ping"
+          ></div>
+          <i class="fas fa-exclamation text-4xl text-red-500 relative z-10"></i>
+        </div>
+
+        <h3 class="text-2xl font-bold text-white mb-3">تنبيه هام</h3>
+
+        <p class="text-gray-300 text-lg leading-relaxed mb-8 font-medium">
+          {{ error }}
+        </p>
+
+        <button
+          onclick="closeErrorPopup()"
+          class="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold shadow-lg shadow-red-500/25 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
+        >
+          <span>حسناً، فهمت</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function closeErrorPopup() {
+        const popup = document.getElementById("errorPopup");
+        popup.style.opacity = "0";
+        setTimeout(() => popup.remove(), 300);
+      }
+
+      window.addEventListener("click", (e) => {
+        const popup = document.getElementById("errorPopup");
+        if (e.target === popup) {
+          closeErrorPopup();
+        }
+      });
+    </script>
+    {% endif %}
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+      integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      let currentAppetite = "Normal";
+
+      function openMedicalModal() {
+        const text = document.getElementById("dailyInput").value.trim();
+        if (!text) return alert("الرجاء كتابة اليوميات أولاً");
+        const modal = document.getElementById("medicalModal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        setTimeout(() => {
+          modal.classList.remove("opacity-0");
+          document.getElementById("modalContent").classList.remove("scale-95");
+          document.getElementById("modalContent").classList.add("scale-100");
+        }, 10);
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("medicalModal");
+        modal.classList.add("opacity-0");
+        document.getElementById("modalContent").classList.add("scale-95");
+        document.getElementById("modalContent").classList.remove("scale-100");
+        setTimeout(() => {
+          modal.classList.remove("flex");
+          modal.classList.add("hidden");
+        }, 300);
+      }
+
+      function updateEnergyLabel(val) {
+        const labels = ["منخفض", "متوسط", "عالي"];
+        const colors = ["text-red-400", "text-yellow-400", "text-green-400"];
+        const label = document.getElementById("energyVal");
+        label.innerText = labels[val - 1];
+        label.className = colors[val - 1];
+      }
+
+      function selectAppetite(btn, val) {
+        currentAppetite = val;
+        document
+          .querySelectorAll(".appetite-btn")
+          .forEach(
+            (b) =>
+              (b.className =
+                "appetite-btn p-3 rounded-xl border border-white/10 text-xs hover:bg-white/5 transition")
+          );
+        btn.className =
+          "appetite-btn p-3 rounded-xl border border-accent-500 bg-accent-500/20 text-accent-400 text-xs transition";
+      }
+
+      const MOCK_DATA = {
+        anxiety: 8,
+        stress: 7,
+        depression: 4,
+        risk_level: "High",
+        trigger_words: ["ألم صدري", "تعبت", "خوف"],
+        advice:
+          "جسدك يرسل إشارات استغاثة. الضغط النفسي بدأ يتحول لأعراض جسدية.",
+        actionable_tasks: [
+          "توقف عن العمل فوراً.",
+          "مارس تمرين التنفس.",
+          "حدد موعد مع الطبيب.",
+        ],
+        need_doctor: true,
+        doctor_recommendation:
+          "وجود ألم بالصدر مع ضغط عصبي يستدعي استشارة طبية عاجلة.",
+        emotion_intensity: 85,
+      };
+
+      async function submitFinalAnalysis() {
+        closeModal();
+        const text = document.getElementById("dailyInput").value;
+        const sleep = document.getElementById("modalSleepRange").value;
+        const energy = document.getElementById("energyRange").value;
+        const symptoms = [];
+        document
+          .querySelectorAll(".symptom-check:checked")
+          .forEach((c) => symptoms.push(c.value));
+
+        document.getElementById("resultsArea").classList.add("hidden");
+        document.getElementById("loading").classList.remove("hidden");
+        document.getElementById("loading").classList.add("flex");
+        document.getElementById("analyzeBtn").disabled = true;
+
+        const payload = {
+          text,
+          sleep_hours: parseInt(sleep),
+          energy_level: parseInt(energy),
+          appetite: currentAppetite,
+          symptoms,
+        };
+
+        try {
+          const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content");
+          const response = await fetch("/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+          if (data.error === 'no_api_key' && data.redirect) {
+            window.location.href = data.redirect;
+            return;
+          }
+          if (!response.ok) throw new Error(data.error || "Backend Failed");
+          setTimeout(() => displayResults(data), 1000);
+        } catch (error) {
+          document.getElementById("loading").classList.add("hidden");
+          document.getElementById("loading").classList.remove("flex");
+          document.getElementById("analyzeBtn").disabled = false;
+          alert(error.message || "حدث خطأ في التحليل");
+        }
+      }
+
+      function displayResults(data) {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("loading").classList.remove("flex");
+        document.getElementById("resultsArea").classList.remove("hidden");
+        document.getElementById("analyzeBtn").disabled = false;
+
+        const alertBox = document.getElementById("doctorAlert");
+        if (data.need_doctor) {
+          alertBox.classList.remove("hidden");
+          document.getElementById("doctorReason").innerText =
+            data.doctor_recommendation;
+        } else {
+          alertBox.classList.add("hidden");
+        }
+
+        updateChart(data.anxiety, data.stress, data.depression);
+
+        document.getElementById("riskText").innerText =
+          data.risk_level === "Low"
+            ? "منخفض"
+            : data.risk_level === "Medium"
+            ? "متوسط"
+            : "مرتفع";
+        let color = "#10b981";
+        let width = "33%";
+        if (data.risk_level === "Medium") {
+          color = "#f59e0b";
+          width = "66%";
+        }
+        if (data.risk_level === "High") {
+          color = "#ef4444";
+          width = "100%";
+        }
+        document.getElementById("riskBar").style.backgroundColor = color;
+        document.getElementById("riskBar").style.width = width;
+        document.getElementById("riskText").style.color = color;
+
+        const states = {
+          القلق: data.anxiety,
+          الضغط: data.stress,
+          الاكتئاب: data.depression,
+        };
+        const dominant = Object.keys(states).reduce((a, b) =>
+          states[a] > states[b] ? a : b
+        );
+        document.getElementById("dominantState").innerText = dominant;
+
+        const triggersDiv = document.getElementById("triggersContainer");
+        triggersDiv.innerHTML = "";
+        (data.trigger_words || []).forEach(
+          (w) =>
+            (triggersDiv.innerHTML += `<span class="px-3 py-1 m-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold">#${w}</span>`)
+        );
+
+        let intensity =
+          data.emotion_intensity || ((data.anxiety + data.stress) / 20) * 100;
+        document.getElementById(
+          "emotionIntensityBar"
+        ).style.width = `${intensity}%`;
+        document.getElementById("emotionText").innerText =
+          intensity > 70
+            ? "حدة مشاعر مرتفعة"
+            : intensity > 40
+            ? "متوسطة"
+            : "هادئة";
+
+        document.getElementById("adviceText").innerText = data.advice;
+        const tasksContainer = document.getElementById("tasksContainer");
+        tasksContainer.innerHTML = "";
+        (data.actionable_tasks || []).forEach((task, idx) => {
+          tasksContainer.innerHTML += `<div class="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5"><input type="checkbox" id="t${idx}" class="custom-checkbox w-5 h-5 mt-0.5 rounded border-gray-600 bg-dark-800"><label for="t${idx}" class="text-sm text-gray-300 select-none cursor-pointer">${task}</label></div>`;
+        });
+
+        document
+          .getElementById("resultsArea")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      let myChart = null;
+      function updateChart(anxiety, stress, depression) {
+        const ctx = document.getElementById("psychChart").getContext("2d");
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["القلق", "الضغط", "الاكتئاب"],
+            datasets: [
+              {
+                data: [anxiety, stress, depression],
+                backgroundColor: ["#3b82f6", "#a855f7", "#ef4444"],
+                borderWidth: 0,
+                hoverOffset: 10,
+                borderRadius: 10,
+                spacing: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "60%",
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: "#94a3b8",
+                  font: { family: "Cairo" },
+                  usePointStyle: true,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      let recognition;
+      if ("webkitSpeechRecognition" in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = "ar-EG";
+        recognition.onresult = (e) =>
+          (document.getElementById("dailyInput").value +=
+            e.results[0][0].transcript + " ");
+      }
+      function toggleVoiceRecording() {
+        if (recognition) recognition.start();
+        else alert("غير مدعوم");
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("mobile-overlay");
+
+        if (sidebar.classList.contains("translate-x-full")) {
+          sidebar.classList.remove("translate-x-full");
+          sidebar.classList.add("translate-x-0");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("translate-x-full");
+          sidebar.classList.remove("translate-x-0");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      function toggleProfileMenu() {
+        const menu = document.getElementById("profileMenu");
+        menu.classList.toggle("hidden");
+      }
+
+      document.addEventListener("click", function (e) {
+        const menu = document.getElementById("profileMenu");
+        const btn = document.querySelector(
+          'button[onclick="toggleProfileMenu()"]'
+        );
+        if (
+          menu &&
+          !menu.classList.contains("hidden") &&
+          !menu.contains(e.target) &&
+          !btn.contains(e.target)
+        ) {
+          menu.classList.add("hidden");
+        }
+      });
+    </script>
+    <script>
+
+      {% if data %}
+      const userReq = {{ data.usr_req | tojson }};
+      document.addEventListener('DOMContentLoaded', () => {
+
+          const dailyInput = document.getElementById('dailyInput');
+          dailyInput.value = userReq;
+      });
+
+      dailyInput.readOnly = true;
+
+
+      document.getElementById('micBtn').style.display = 'none';
+
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      analyzeBtn.textContent = 'جلسة سابقة';
+      analyzeBtn.disabled = true;
+      analyzeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      analyzeBtn.removeAttribute('onclick');
+
+
+      const tasksStr = {{ data.tasks | tojson }};
+      const triggersStr = {{ data.trigger_words | tojson }};
+
+
+      const tasks = tasksStr ? tasksStr.split('!%b^&!').filter(t => t.trim() !== '') : [];
+      const triggers = triggersStr ? triggersStr.split('!%r^&!').filter(t => t.trim() !== '') : [];
+
+
+
+      const historicalData = {
+        anxiety: {{ data.anxiety }},
+        stress: {{ data.stress }},
+        depression: {{ data.depression }},
+        risk_level: {{ data.danger | tojson }},
+        advice: {{ data.advice | tojson }},
+        actionable_tasks: tasks,
+        trigger_words: triggers,
+        need_doctor: {{ data.inneed | tojson }},
+        doctor_recommendation: {{ data.recommend | tojson }},
+        emotion_intensity: null
+      };
+
+
+
+      setTimeout(() => {
+          displayResults(historicalData);
+      }, 500);
+      {% endif %}
+    </script>
+  </body>
+</html>

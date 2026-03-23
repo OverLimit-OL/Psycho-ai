@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>تسجيل الدخول بجوجل</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+
+  <body>
+    <h2>مرحباً بك، سجل دخولك الآن</h2>
+
+    <button
+      onclick="fbLogin()"
+      type="button"
+      class="flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#166fe5] text-white py-2.5 md:py-3 rounded-xl shadow-lg shadow-blue-900/20 transition transform hover:scale-[1.02] h-[44px] md:h-[48px]"
+    >
+      <i class="fab fa-facebook-f text-white text-base md:text-lg"></i>
+      <span class="text-xs md:text-sm font-medium">Facebook</span>
+    </button>
+
+    <script>
+      window.fbAsyncInit = function () {
+          FB.init({
+
+              cookie: true,
+              xfbml: true,
+              version: 'v18.0'
+          });
+
+          FB.AppEvents.logPageView();
+      };
+
+      (function (d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) { return; }
+          js = d.createElement(s); js.id = id;
+          js.src = "https://connect.facebook.net/en_US/sdk.js";
+          fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+
+      function fbLogin() {
+          FB.login(function (response) {
+              if (response.authResponse) {
+
+                  console.log('Welcome!  Fetching your information.... ');
+                  const accessToken = response.authResponse.accessToken;
+                  const userID = response.authResponse.userID;
+
+
+                  sendFbTokenToBackend(accessToken, userID);
+              } else {
+                  console.log('User cancelled login or did not fully authorize.');
+              }
+
+      }
+
+      function sendFbTokenToBackend(accessToken, userID) {
+          fetch('/facebook-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ accessToken: accessToken, userID: userID })
+          })
+              .then(res => res.json())
+              .then(data => {
+                  if (data.success) {
+                      window.location.href = "/dashboard";
+                  } else {
+                      alert("خطأ: " + data.error);
+                  }
+              });
+      }
+    </script>
+  </body>
+</html>
