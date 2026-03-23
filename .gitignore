@@ -2,3 +2,4 @@
 /flask_session/
 /.venv/
 /venv/
+.env
