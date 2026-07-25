@@ -132,11 +132,18 @@ GOOGLE_CLIENT_ID=your_google_oauth_client_id
 FERNET_KEY=your_fernet_encryption_key
 ```
 
+| Variable           | Required | Description                                                                 |
+| ------------------ | -------- | --------------------------------------------------------------------------- |
+| `FERNET_KEY`       | Yes      | Encrypts each user's saved Gemini API key. The app will not start without it. |
+| `GOOGLE_CLIENT_ID` | Optional | Enables Google OAuth login. Email/password auth still works without it.      |
+
 > **💡 Tip:** Generate a Fernet key with:
 > ```python
 > from cryptography.fernet import Fernet
 > print(Fernet.generate_key().decode())
 > ```
+
+The SQLite database file (`iv_moha_2FK.db`) and required tables are created automatically when `main.py` starts.
 
 ### Run
 
@@ -145,6 +152,35 @@ python main.py
 ```
 
 The app will be available at **http://127.0.0.1:5000**.
+
+---
+
+## 🧭 Usage Flow
+
+1. Register with email/password or sign in with Google.
+2. Add your personal Gemini API key from the setup page.
+3. Open the chat page and submit a diary entry with sleep, energy, appetite, and physical symptom details.
+4. Review the Arabic AI analysis, risk level, trigger words, advice, and suggested tasks.
+5. Visit history to reopen past sessions or download them as CSV.
+
+---
+
+## 🔗 Main Routes
+
+| Route               | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| `/`                 | Landing page                                 |
+| `/register`         | Create a user account                        |
+| `/login`            | Email/password or Google login               |
+| `/setup-api-key`    | Save the user's Gemini API key               |
+| `/n/chat`           | Start a new analysis session                 |
+| `/p/chat?chpaV1=...` | Reopen a previous analysis session           |
+| `/history`          | View saved analysis history                  |
+| `/download_history` | Export history as CSV                        |
+| `/dashboard`        | User settings and profile management         |
+| `/admin-login`      | Admin login page                             |
+| `/admin-dashboard`  | Admin metrics overview                       |
+| `/admin-users`      | Admin user search and management             |
 
 ---
 
@@ -162,6 +198,16 @@ flowchart LR
     H -->|Yes| I[Doctor recommendation shown]
     H -->|No| J[Preventive advice shown]
 ```
+
+---
+
+## 🧪 Development Notes
+
+- The app runs with `debug=True` when started directly through `python main.py`; disable debug mode in production.
+- User Gemini API keys are encrypted before being stored in SQLite.
+- The app currently uses filesystem-backed Flask sessions in `flask_session/`.
+- Admin credentials are defined in `main.py`; change them before deploying outside a local/demo environment.
+- Do not commit `.env`, local database files, virtual environments, or generated session files.
 
 ---
 
